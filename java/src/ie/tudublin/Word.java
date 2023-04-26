@@ -25,12 +25,19 @@ public class Word
     public void addFollow(String followWord) 
     {
         Follow follow = findFollow(followWord);
-        
+        if(follow == null) 
+        {
+            follows.add(new Follow(followWord, 1));
+        } 
+        else 
+        {
+            follow.incrementCount();
+        }
     }
 
     public Follow findFollow(String followWord) 
     {
-        for (Follow follow : follows) 
+        for(Follow follow : follows) 
         {
             if (follow.getWord().equals(followWord)) 
             {
@@ -41,12 +48,15 @@ public class Word
     }
 
     @Override
-    public String toString() {
+    public String toString() 
+    {
         StringBuilder sb = new StringBuilder();
         sb.append(word).append(" -> ");
-        for (Follow follow:follows) 
+
+        
+        for(Follow follow : follows) 
         {
-            sb.append(follow.toString());
+            sb.append(follow.toString()).append(", ");
         }
         return sb.toString();
     }
