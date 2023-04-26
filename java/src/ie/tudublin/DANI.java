@@ -1,33 +1,110 @@
 package ie.tudublin;
 
 import java.util.ArrayList;
-
+import java.util.Random;
 import processing.core.PApplet;
 
 public class DANI extends PApplet {
 
-	
+	private ArrayList<Word> model;
+    private Random random;
 
 	public void settings() {
 		size(1000, 1000);
 		//fullScreen(SPAN);
 	}
 
-    String[] sonnet;
+	public void setup() {
+		colorMode(HSB);
+		loadFile("small.txt");
+		printModel();
+	}
+
+	String[] sonnet;
+
+	public DANI() 
+	{
+        model = new ArrayList<>();
+        random = new Random();
+    }
 
     public String[] writeSonnet()
     {
+        String[] sonnet = new String[14];
+
+        return sonnet;
+    }
+
+	public String writeLine() 
+	{
+        
         return null;
     }
 
-	public void setup() {
-		colorMode(HSB);
+	public void loadFile(String file)
+	{
+		String[] lines = loadStrings(file);
 
-       
+		for(String line:lines) 
+		{
+			String[] words = split(line, ' ');
+	
+			for(int i = 0; i < words.length - 1; i++) 
+			{
+				String currentWord = words[i].replaceAll("[^\\w\\s]", "").toLowerCase();
+				String nextWord = words[i + 1].replaceAll("[^\\w\\s]", "").toLowerCase();
+
+				
+				Word word = findWord(currentWord);
+				
+				word.addFollow(nextWord);
+			}
+		}
 	}
 
-	public void keyPressed() {
+	public Word findWord(String word) 
+	{
+        for(Word w:model) 
+		{
+            if(w.getWord().equals(word)) 
+			{
+                return w;
+            }
+        }
+        return null;
+    }
 
+	public void printModel() 
+	{
+        for (Word word:model) 
+		{
+			System.out.print(word.getWord() + ": ");
+			ArrayList<Follow> follows = word.getFollows();
+
+
+			for (int i = 0; i < follows.size(); i++) 
+			{
+				Follow follow = follows.get(i);
+				System.out.print(follow.getWord() + "(" + follow.getCount() + ")");
+				if(i < follows.size() - 1) 
+				{
+					System.out.print(" ");
+				}
+			}
+			System.out.println();
+		}
+    }
+
+
+	public void keyPressed() {
+		if(key == ' ') 
+		{
+            sonnet = writeSonnet();
+            for(String line:sonnet) 
+			{
+                System.out.println(line);
+            }
+        }
 	}
 
 	float off = 0;
@@ -39,6 +116,12 @@ public class DANI extends PApplet {
 		noStroke();
 		textSize(20);
         textAlign(CENTER, CENTER);
+        
+		
+		for (int i = 0; i < sonnet.length; i++) 
+		{
+			text(sonnet[i], width / 2, (i + 1) * 50);
+		}
         
 	}
 }
