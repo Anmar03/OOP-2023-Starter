@@ -16,7 +16,7 @@ public class DANI extends PApplet {
 
 	public void setup() {
 		colorMode(HSB);
-		loadFile("small.txt");
+		loadFile("shakespeare.txt");
 		printModel();
 	}
 
@@ -32,13 +32,35 @@ public class DANI extends PApplet {
     {
         String[] sonnet = new String[14];
 
+		
+
         return sonnet;
     }
 
 	public String writeLine() 
 	{
-        
-        return null;
+		StringBuilder sb = new StringBuilder();
+        Word currentWord = model.get(random.nextInt(model.size()));
+
+		sb.append(currentWord.getWord());
+        for(int i = 0; i < 7; i++) 
+        {
+            Follow nextFollow = currentWord.getFollows().isEmpty() ? null : currentWord.getFollows().get(random.nextInt(currentWord.getFollows().size()));
+                    
+            if(nextFollow == null) 
+            {
+                break;
+            }
+            sb.append(" ").append(nextFollow.getWord());
+            currentWord = findWord(nextFollow.getWord());
+
+            if(currentWord == null) 
+            {
+                break;
+            }
+        }
+        return sb.toString();
+
     }
 
 	public void loadFile(String file)
@@ -117,11 +139,12 @@ public class DANI extends PApplet {
 		textSize(20);
         textAlign(CENTER, CENTER);
         
-		
-		for (int i = 0; i < sonnet.length; i++) 
+		if(sonnet != null) 
 		{
-			text(sonnet[i], width / 2, (i + 1) * 50);
-		}
-        
+            for(int i = 0; i < sonnet.length; i++) 
+			{
+                text(sonnet[i], width / 2, (i + 1) * 50);
+            }
+        }
 	}
 }
