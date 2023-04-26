@@ -6,24 +6,24 @@ import processing.core.PApplet;
 
 public class DANI extends PApplet {
 
-	private ArrayList<Word> model;
+    private ArrayList<Word> model;
     private Random random;
 
-	public void settings() {
-		size(1000, 1000);
-		//fullScreen(SPAN);
-	}
+    public void settings() {
+        size(1000, 1000);
+        //fullScreen(SPAN);
+    }
 
-	public void setup() {
-		colorMode(HSB);
-		loadFile("shakespeare.txt");
-		printModel();
-	}
+    public void setup() {
+        colorMode(HSB);
+        loadFile("shakespere.txt"); // swap with small.txt to see the model for small
+        printModel();
+    }
 
-	String[] sonnet;
+    String[] sonnet;
 
-	public DANI() 
-	{
+    public DANI() 
+    {
         model = new ArrayList<>();
         random = new Random();
     }
@@ -31,18 +31,25 @@ public class DANI extends PApplet {
     public String[] writeSonnet()
     {
         String[] sonnet = new String[14];
-
-		
-
+        for(int i = 0; i < 14; i++) 
+        {
+            sonnet[i] = writeLine();
+        }
         return sonnet;
     }
 
-	public String writeLine() 
-	{
-		StringBuilder sb = new StringBuilder();
+    public String writeLine() 
+    {
+        StringBuilder sb = new StringBuilder();
         Word currentWord = model.get(random.nextInt(model.size()));
 
-		sb.append(currentWord.getWord());
+        //generate a new random word
+        while(currentWord == null) 
+        {
+            currentWord = model.get(random.nextInt(model.size()));
+        }
+
+        sb.append(currentWord.getWord());
         for(int i = 0; i < 7; i++) 
         {
             Follow nextFollow = currentWord.getFollows().isEmpty() ? null : currentWord.getFollows().get(random.nextInt(currentWord.getFollows().size()));
@@ -60,91 +67,98 @@ public class DANI extends PApplet {
             }
         }
         return sb.toString();
-
     }
 
-	public void loadFile(String file)
-	{
-		String[] lines = loadStrings(file);
+    public void loadFile(String file)
+    {
+        String[] lines = loadStrings(file);
 
-		for(String line:lines) 
-		{
-			String[] words = split(line, ' ');
-	
-			for(int i = 0; i < words.length - 1; i++) 
-			{
-				String currentWord = words[i].replaceAll("[^\\w\\s]", "").toLowerCase();
-				String nextWord = words[i + 1].replaceAll("[^\\w\\s]", "").toLowerCase();
+        for(String line:lines) 
+        {
+            String[] words = split(line, ' ');
+    
+            for(int i = 0; i < words.length - 1; i++) 
+            {
+                String currentWord = words[i].replaceAll("[^\\w\\s]", "").toLowerCase();
+                String nextWord = words[i + 1].replaceAll("[^\\w\\s]", "").toLowerCase();
 
-				
-				Word word = findWord(currentWord);
-				
-				word.addFollow(nextWord);
-			}
-		}
-	}
+                if (currentWord.isEmpty() || nextWord.isEmpty()) 
+                {
+                    continue;
+                }
+    
+                Word word = findWord(currentWord);
+                if(word == null) 
+                {
+                    word = new Word(currentWord);
+                    model.add(word);
+                }
+                word.addFollow(nextWord);
+            }
+        }
+    }
 
-	public Word findWord(String word) 
-	{
+    public Word findWord(String word) 
+    {
         for(Word w:model) 
-		{
+        {
             if(w.getWord().equals(word)) 
-			{
+            {
                 return w;
             }
         }
         return null;
     }
 
-	public void printModel() 
-	{
-        for (Word word:model) 
-		{
-			System.out.print(word.getWord() + ": ");
-			ArrayList<Follow> follows = word.getFollows();
+    public void printModel() 
+    {
+        for(Word word : model) 
+        {
+            System.out.print(word.getWord() + ": ");
+            ArrayList<Follow> follows = word.getFollows();
 
 
-			for (int i = 0; i < follows.size(); i++) 
-			{
-				Follow follow = follows.get(i);
-				System.out.print(follow.getWord() + "(" + follow.getCount() + ")");
-				if(i < follows.size() - 1) 
-				{
-					System.out.print(" ");
-				}
-			}
-			System.out.println();
-		}
+            for(int i = 0; i < follows.size(); i++) 
+            {
+                Follow follow = follows.get(i);
+                System.out.print(follow.getWord() + "(" + follow.getCount() + ")");
+                if (i < follows.size() -1) 
+                {
+                    System.out.print(" ");
+                }
+            }
+            System.out.println();
+        }
     }
 
 
-	public void keyPressed() {
-		if(key == ' ') 
-		{
+    public void keyPressed() {
+        if(key == ' ') 
+        {
             sonnet = writeSonnet();
-            for(String line:sonnet) 
-			{
+            for (String line : sonnet) 
+            {
                 System.out.println(line);
             }
         }
-	}
+    }
 
-	float off = 0;
+    float off = 0;
 
-	public void draw() 
+    public void draw() 
     {
-		background(0);
-		fill(255);
-		noStroke();
-		textSize(20);
+        background(0);
+        fill(255);
+        noStroke();
+        textSize(20);
         textAlign(CENTER, CENTER);
         
-		if(sonnet != null) 
-		{
-            for(int i = 0; i < sonnet.length; i++) 
+        if(sonnet != null) 
+        {
+            for (int i = 0; i < sonnet.length; i++) 
 			{
                 text(sonnet[i], width / 2, (i + 1) * 50);
             }
         }
-	}
+    }
 }
